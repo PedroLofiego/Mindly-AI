@@ -1,130 +1,226 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Sparkles, Check, Eye, Headphones, BookOpen, Hand } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Eye, Headphones, BookOpen, Hand, Zap } from "lucide-react";
 
-const VARK_OPTIONS = [
-  { value: "visual", label: "Ver diagramas, mapas ou imagens", color: "#58A6FF" },
-  { value: "auditivo", label: "Ouvir explicações ou podcasts", color: "#7EE787" },
-  { value: "leitura_escrita", label: "Ler textos e resumos", color: "#F78166" },
-  { value: "cinestesico", label: "Fazer atividades práticas", color: "#A371F7" }
-];
-
-const STYLE_OPTIONS = [
-  { value: "curta_objetiva", label: "Curtas e objetivas" },
-  { value: "detalhada_aprofundada", label: "Detalhadas e aprofundadas" },
-  { value: "exemplos_praticos", label: "Com muitos exemplos práticos" },
-  { value: "analogias_historias", label: "Com analogias e histórias" }
-];
-
-const APPROACH_OPTIONS = [
-  { value: "pratica", label: "Por exemplos e aplicações práticas" },
-  { value: "teorica", label: "Por explicações teóricas e conceitos" }
-];
-
-const SOCIAL_OPTIONS = [
-  { value: "sozinho", label: "Sozinho(a)" },
-  { value: "dupla", label: "Em dupla" },
-  { value: "grupo", label: "Em grupo" },
-  { value: "tutor", label: "Com orientação direta de um tutor" }
-];
-
-const MOTIVATION_OPTIONS = [
-  { value: "desafios_metas", label: "Desafios e metas claras" },
-  { value: "interesse_pessoal", label: "Explorar temas de interesse" },
-  { value: "reconhecimento", label: "Reconhecimento e recompensas" },
-  { value: "utilidade_pratica", label: "Utilidade prática do conteúdo" }
-];
-
-function VarkIcon({ type, className }) {
-  switch (type) {
-    case "visual": return <Eye className={className} />;
-    case "auditivo": return <Headphones className={className} />;
-    case "leitura_escrita": return <BookOpen className={className} />;
-    case "cinestesico": return <Hand className={className} />;
-    default: return null;
+const BLOCKS = {
+  intro: {
+    title: "Vamos personalizar sua experiência!",
+    description: "Responda algumas perguntas rápidas para mapear seu estilo de aprendizagem e adaptar as explicações ao seu jeito."
+  },
+  A: {
+    title: "Como você aprende melhor",
+    questions: [
+      {
+        id: "canal_sensorial",
+        label: "Quando aprende algo novo, o que te ajuda mais?",
+        options: [
+          { value: "visual", label: "Ver diagramas, mapas ou imagens", icon: Eye, color: "text-blue-400" },
+          { value: "auditivo", label: "Ouvir explicações ou podcasts", icon: Headphones, color: "text-green-400" },
+          { value: "leitura_escrita", label: "Ler textos e resumos", icon: BookOpen, color: "text-orange-400" },
+          { value: "cinestesico", label: "Fazer atividades práticas", icon: Hand, color: "text-purple-400" }
+        ]
+      },
+      {
+        id: "formato_explicacao",
+        label: "Você prefere explicações...",
+        options: [
+          { value: "curta_objetiva", label: "Curtas e objetivas" },
+          { value: "detalhada_aprofundada", label: "Detalhadas e aprofundadas" },
+          { value: "exemplos_praticos", label: "Com muitos exemplos práticos" },
+          { value: "analogias_historias", label: "Com analogias e storytelling" }
+        ]
+      },
+      {
+        id: "abordagem",
+        label: "Você prefere aprender...",
+        options: [
+          { value: "pratica", label: "Por exemplos e aplicações práticas primeiro" },
+          { value: "teorica", label: "Pela teoria e conceitos primeiro" }
+        ]
+      }
+    ]
+  },
+  B: {
+    title: "Seu jeito de estudar",
+    questions: [
+      {
+        id: "interacao_social",
+        label: "Você estuda melhor...",
+        options: [
+          { value: "sozinho", label: "Sozinho(a)" },
+          { value: "dupla", label: "Em dupla" },
+          { value: "grupo", label: "Em grupo" },
+          { value: "tutor", label: "Com orientação de tutor" }
+        ]
+      },
+      {
+        id: "estrutura_estudo",
+        label: "Ao estudar, você prefere...",
+        options: [
+          { value: "estruturado", label: "Seguir um roteiro estruturado" },
+          { value: "livre", label: "Ter liberdade total" },
+          { value: "equilibrado", label: "Equilíbrio entre os dois" }
+        ]
+      },
+      {
+        id: "duracao_sessao",
+        label: "Tempo ideal de sessão de estudo",
+        options: [
+          { value: "menos_15", label: "Menos de 15 min" },
+          { value: "15_30", label: "15 a 30 min" },
+          { value: "30_60", label: "30 a 60 min" },
+          { value: "mais_60", label: "Mais de 1 hora" }
+        ]
+      },
+      {
+        id: "ambiente_estudo",
+        label: "Onde você rende mais?",
+        options: [
+          { value: "silencio", label: "Silêncio total" },
+          { value: "musica", label: "Com música de fundo" },
+          { value: "movimento", label: "Lugares com movimento" },
+          { value: "depende", label: "Depende do dia" }
+        ]
+      }
+    ]
+  },
+  C: {
+    title: "Motivação e estratégias",
+    questions: [
+      {
+        id: "motivador_principal",
+        label: "O que mais te motiva?",
+        options: [
+          { value: "desafios_metas", label: "Desafios e metas claras" },
+          { value: "interesse_pessoal", label: "Explorar temas de interesse" },
+          { value: "reconhecimento", label: "Reconhecimento e recompensas" },
+          { value: "utilidade_pratica", label: "Utilidade prática do conteúdo" }
+        ]
+      },
+      {
+        id: "estrategia_dificuldade",
+        label: "Quando não entende algo, você...",
+        options: [
+          { value: "procura_sozinho", label: "Procura sozinho(a) uma solução" },
+          { value: "pede_ajuda", label: "Pede ajuda" },
+          { value: "autoexplica", label: "Explica para si mesmo(a)" },
+          { value: "busca_exemplos", label: "Busca exemplos ou analogias" }
+        ]
+      },
+      {
+        id: "planejamento_estudos",
+        label: "Você planeja seus estudos?",
+        options: [
+          { value: "sempre", label: "Sempre" },
+          { value: "as_vezes", label: "Às vezes" },
+          { value: "raramente", label: "Raramente" },
+          { value: "nunca", label: "Nunca" }
+        ]
+      }
+    ]
+  },
+  E: {
+    title: "Personalização",
+    questions: [
+      {
+        id: "interesse_cultural",
+        type: "text",
+        label: "Qual filme, jogo, série, anime ou desenho você mais gosta e conhece bem?",
+        description: "Vou usar isso para criar analogias que fazem sentido pra você!",
+        placeholder: "Ex: League of Legends, Naruto, Harry Potter, Marvel..."
+      }
+    ]
+  },
+  name: {
+    title: "Quase lá!",
+    questions: [
+      {
+        id: "name",
+        type: "text",
+        label: "Como posso te chamar?",
+        placeholder: "Seu nome ou apelido"
+      }
+    ]
   }
-}
+};
 
-function SelectOption({ option, selected, onClick, showIcon, field }) {
-  const isSelected = selected === option.value;
-  return (
-    <button
-      onClick={() => onClick(option.value)}
-      data-testid={`onboarding-${field}-${option.value}`}
-      className={`w-full p-4 rounded-xl border transition-all text-left flex items-center gap-4 ${
-        isSelected
-          ? "bg-[#58A6FF]/20 border-[#58A6FF] text-white"
-          : "bg-[#161B22] border-[#30363D] text-[#C9D1D9] hover:border-[#8B949E]"
-      }`}
-    >
-      {showIcon && <VarkIcon type={option.value} className="w-5 h-5" style={{ color: option.color }} />}
-      <span className="flex-1 font-medium">{option.label}</span>
-      {isSelected && <Check className="w-5 h-5 text-[#58A6FF]" />}
-    </button>
-  );
-}
+const STEP_ORDER = ["intro", "A", "B", "C", "E", "name"];
 
 export default function Onboarding({ onComplete }) {
-  const [step, setStep] = useState(0);
-  const [name, setName] = useState("");
-  const [vark, setVark] = useState("");
-  const [style, setStyle] = useState("");
-  const [approach, setApproach] = useState("");
-  const [social, setSocial] = useState("");
-  const [motivation, setMotivation] = useState("");
-  const [cultural, setCultural] = useState("");
+  const [currentBlock, setCurrentBlock] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState({});
 
-  const totalSteps = 8;
-  const progress = (step / (totalSteps - 1)) * 100;
+  const blockKey = STEP_ORDER[currentBlock];
+  const block = BLOCKS[blockKey];
+  const isIntro = blockKey === "intro";
+  const questions = block?.questions || [];
+  const question = questions[currentQuestion];
+
+  const totalQuestions = STEP_ORDER.reduce((acc, key) => {
+    if (key === "intro") return acc;
+    return acc + (BLOCKS[key].questions?.length || 0);
+  }, 0);
+
+  const answeredCount = Object.keys(answers).length;
+  const progress = (answeredCount / totalQuestions) * 100;
+
+  function handleAnswer(id, value) {
+    setAnswers(prev => ({ ...prev, [id]: value }));
+  }
 
   function canProceed() {
-    if (step === 0) return true;
-    if (step === 1) return name.trim().length > 0;
-    if (step === 2) return vark.length > 0;
-    if (step === 3) return style.length > 0;
-    if (step === 4) return approach.length > 0;
-    if (step === 5) return social.length > 0;
-    if (step === 6) return motivation.length > 0;
-    if (step === 7) return cultural.trim().length > 0;
-    return false;
+    if (isIntro) return true;
+    if (!question) return true;
+    return answers[question.id]?.toString().trim().length > 0;
   }
 
   function handleNext() {
-    if (step === totalSteps - 1) {
-      onComplete({
-        name,
-        vark_primary: vark,
-        explanation_style: style,
-        approach,
-        social_pref: social,
-        motivation,
-        cultural_interest: cultural
-      });
+    if (isIntro) {
+      setCurrentBlock(1);
+      setCurrentQuestion(0);
+      return;
+    }
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else if (currentBlock < STEP_ORDER.length - 1) {
+      setCurrentBlock(currentBlock + 1);
+      setCurrentQuestion(0);
     } else {
-      setStep(step + 1);
+      onComplete(answers);
     }
   }
 
   function handleBack() {
-    if (step > 0) setStep(step - 1);
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    } else if (currentBlock > 0) {
+      const prevBlockKey = STEP_ORDER[currentBlock - 1];
+      const prevQuestions = BLOCKS[prevBlockKey].questions || [];
+      setCurrentBlock(currentBlock - 1);
+      setCurrentQuestion(Math.max(0, prevQuestions.length - 1));
+    }
   }
 
+  const isLastStep = currentBlock === STEP_ORDER.length - 1 && currentQuestion === questions.length - 1;
+
   return (
-    <div className="min-h-screen bg-[#0D1117] text-white flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#0D1117]/90 backdrop-blur-lg border-b border-[#30363D]">
+    <div className="min-h-screen bg-[#030712] text-white flex flex-col">
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-green-500/5 pointer-events-none" />
+      
+      {/* Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-lg border-b border-[#1e293b]">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#58A6FF]" />
-              <span className="font-semibold">MINDLY</span>
-            </div>
-            <span className="text-sm text-[#8B949E]">
-              {step > 0 ? `${step} de ${totalSteps - 1}` : ""}
+            <img src="/revisahub-logo.png" alt="RevisaHub" className="h-8 w-auto" />
+            <span className="text-sm text-slate-500">
+              {!isIntro && `${answeredCount} de ${totalQuestions}`}
             </span>
           </div>
-          <div className="h-1 bg-[#30363D] rounded-full overflow-hidden">
+          <div className="h-1 bg-[#1e293b] rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-[#58A6FF] to-[#7EE787] rounded-full"
+              className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full"
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.3 }}
             />
@@ -132,123 +228,85 @@ export default function Onboarding({ onComplete }) {
         </div>
       </div>
 
+      {/* Content */}
       <div className="flex-1 flex items-center justify-center px-6 pt-28 pb-32">
         <AnimatePresence mode="wait">
           <motion.div
-            key={step}
+            key={`${blockKey}-${currentQuestion}`}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
             className="w-full max-w-xl"
           >
-            {step === 0 && (
+            {isIntro ? (
               <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#58A6FF] to-[#7EE787] flex items-center justify-center mx-auto mb-8">
-                  <Sparkles className="w-10 h-10 text-black" />
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center mx-auto mb-8">
+                  <Zap className="w-10 h-10 text-white" />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">Vamos personalizar sua experiência!</h1>
-                <p className="text-lg text-[#8B949E]">Responda algumas perguntas rápidas para que eu possa adaptar as explicações ao seu jeito de aprender.</p>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">{block.title}</h1>
+                <p className="text-lg text-slate-400">{block.description}</p>
               </div>
-            )}
-
-            {step === 1 && (
+            ) : question?.type === "text" ? (
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Como posso te chamar?</h2>
+                <p className="text-sm text-blue-400 font-medium mb-2">{block.title}</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">{question.label}</h2>
+                {question.description && (
+                  <p className="text-slate-400 mb-6">{question.description}</p>
+                )}
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome ou apelido"
-                  data-testid="onboarding-name"
-                  className="w-full px-5 py-4 rounded-xl bg-[#161B22] border border-[#30363D] text-white placeholder-[#8B949E] focus:outline-none focus:border-[#58A6FF] transition-colors text-lg"
+                  value={answers[question.id] || ""}
+                  onChange={(e) => handleAnswer(question.id, e.target.value)}
+                  placeholder={question.placeholder}
+                  data-testid={`onboarding-${question.id}`}
+                  className="w-full px-5 py-4 rounded-xl bg-[#0f172a] border border-[#1e293b] text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors text-lg"
                   autoFocus
                 />
               </div>
-            )}
-
-            {step === 2 && (
+            ) : (
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Quando aprende algo novo, o que te ajuda mais?</h2>
+                <p className="text-sm text-blue-400 font-medium mb-2">{block.title}</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">{question?.label}</h2>
                 <div className="space-y-3">
-                  {VARK_OPTIONS.map((opt) => (
-                    <SelectOption key={opt.value} option={opt} selected={vark} onClick={setVark} showIcon field="vark_primary" />
-                  ))}
+                  {question?.options?.map((opt) => {
+                    const Icon = opt.icon;
+                    const isSelected = answers[question.id] === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleAnswer(question.id, opt.value)}
+                        data-testid={`onboarding-${question.id}-${opt.value}`}
+                        className={`w-full p-4 rounded-xl border transition-all text-left flex items-center gap-4 ${
+                          isSelected
+                            ? "bg-blue-500/20 border-blue-500 text-white"
+                            : "bg-[#0f172a] border-[#1e293b] text-slate-300 hover:border-slate-600"
+                        }`}
+                      >
+                        {Icon && <Icon className={`w-5 h-5 ${opt.color || "text-slate-500"}`} />}
+                        <span className="flex-1 font-medium">{opt.label}</span>
+                        {isSelected && <Check className="w-5 h-5 text-blue-400" />}
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Como você prefere as explicações?</h2>
-                <div className="space-y-3">
-                  {STYLE_OPTIONS.map((opt) => (
-                    <SelectOption key={opt.value} option={opt} selected={style} onClick={setStyle} field="explanation_style" />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Como você prefere aprender?</h2>
-                <div className="space-y-3">
-                  {APPROACH_OPTIONS.map((opt) => (
-                    <SelectOption key={opt.value} option={opt} selected={approach} onClick={setApproach} field="approach" />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step === 5 && (
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Você estuda melhor...</h2>
-                <div className="space-y-3">
-                  {SOCIAL_OPTIONS.map((opt) => (
-                    <SelectOption key={opt.value} option={opt} selected={social} onClick={setSocial} field="social_pref" />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step === 6 && (
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">O que mais te motiva a estudar?</h2>
-                <div className="space-y-3">
-                  {MOTIVATION_OPTIONS.map((opt) => (
-                    <SelectOption key={opt.value} option={opt} selected={motivation} onClick={setMotivation} field="motivation" />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step === 7 && (
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-3">Qual filme, série, anime, jogo ou música você mais curte?</h2>
-                <p className="text-[#8B949E] mb-6">Vou usar isso para criar analogias que fazem sentido pra você!</p>
-                <input
-                  type="text"
-                  value={cultural}
-                  onChange={(e) => setCultural(e.target.value)}
-                  placeholder="Ex: Naruto, League of Legends, Harry Potter, Marvel..."
-                  data-testid="onboarding-cultural_interest"
-                  className="w-full px-5 py-4 rounded-xl bg-[#161B22] border border-[#30363D] text-white placeholder-[#8B949E] focus:outline-none focus:border-[#58A6FF] transition-colors text-lg"
-                  autoFocus
-                />
               </div>
             )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0D1117]/90 backdrop-blur-lg border-t border-[#30363D]">
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#030712]/90 backdrop-blur-lg border-t border-[#1e293b]">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
           <button
             onClick={handleBack}
-            disabled={step === 0}
+            disabled={currentBlock === 0 && currentQuestion === 0}
             data-testid="onboarding-back-btn"
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              step === 0 ? "text-[#30363D] cursor-not-allowed" : "text-[#8B949E] hover:text-white hover:bg-[#161B22]"
+              currentBlock === 0 && currentQuestion === 0 
+                ? "text-slate-700 cursor-not-allowed" 
+                : "text-slate-400 hover:text-white hover:bg-[#0f172a]"
             }`}
           >
             <ArrowLeft className="w-5 h-5" />
@@ -260,10 +318,12 @@ export default function Onboarding({ onComplete }) {
             disabled={!canProceed()}
             data-testid="onboarding-next-btn"
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-              canProceed() ? "bg-[#58A6FF] text-black hover:bg-[#79B8FF]" : "bg-[#30363D] text-[#8B949E] cursor-not-allowed"
+              canProceed() 
+                ? "bg-blue-500 text-white hover:bg-blue-400" 
+                : "bg-slate-800 text-slate-500 cursor-not-allowed"
             }`}
           >
-            {step === totalSteps - 1 ? "Começar!" : "Continuar"}
+            {isLastStep ? "Começar!" : "Continuar"}
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>

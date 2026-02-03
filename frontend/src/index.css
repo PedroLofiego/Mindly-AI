@@ -2,87 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-    --mindly-dark: #0D1117;
-    --mindly-darker: #010409;
-    --mindly-card: #161B22;
-    --mindly-border: #30363D;
-    --mindly-primary: #58A6FF;
-    --mindly-accent: #7EE787;
-    --mindly-orange: #F78166;
-    --mindly-purple: #A371F7;
-    --mindly-yellow: #D29922;
-    --mindly-text: #C9D1D9;
-    --mindly-muted: #8B949E;
+    --rh-dark: #030712;
+    --rh-darker: #000000;
+    --rh-card: #0f172a;
+    --rh-card-hover: #1e293b;
+    --rh-border: #1e293b;
+    --rh-primary: #3b82f6;
+    --rh-primary-light: #60a5fa;
+    --rh-accent: #22c55e;
+    --rh-accent-light: #4ade80;
+    --rh-orange: #f97316;
+    --rh-purple: #a855f7;
+    --rh-yellow: #eab308;
+    --rh-text: #e2e8f0;
+    --rh-muted: #64748b;
+    --rh-streak: #f59e0b;
 }
 
 body {
     margin: 0;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--mindly-dark);
-    color: var(--mindly-text);
+    background-color: var(--rh-dark);
+    color: var(--rh-text);
 }
 
-code {
-    font-family: 'JetBrains Mono', source-code-pro, Menlo, Monaco, Consolas, monospace;
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--mindly-darker);
+    background: var(--rh-darker);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--mindly-border);
-    border-radius: 4px;
+    background: var(--rh-border);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--mindly-muted);
+    background: var(--rh-muted);
 }
 
-/* Glass effect */
 .glass {
-    background: rgba(22, 27, 34, 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--mindly-border);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--rh-border);
 }
 
-/* Gradient text */
 .gradient-text {
-    background: linear-gradient(135deg, var(--mindly-primary) 0%, var(--mindly-accent) 100%);
+    background: linear-gradient(135deg, var(--rh-primary) 0%, var(--rh-accent) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* Glow effects */
+.gradient-text-orange {
+    background: linear-gradient(135deg, var(--rh-orange) 0%, var(--rh-yellow) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 .glow-primary {
-    box-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
 }
 
 .glow-accent {
-    box-shadow: 0 0 20px rgba(126, 231, 135, 0.3);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
 }
 
-/* Animations */
+.glow-streak {
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+}
+
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
 }
 
 @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(88, 166, 255, 0.3); }
-    50% { box-shadow: 0 0 40px rgba(88, 166, 255, 0.5); }
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
 }
 
 @keyframes slide-up {
@@ -93,6 +103,11 @@ code {
 @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+@keyframes fire {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .animate-float {
@@ -111,86 +126,101 @@ code {
     animation: fade-in 0.3s ease-out forwards;
 }
 
-/* Markdown styles */
-.prose-mindly {
-    color: var(--mindly-text);
+.animate-fire {
+    animation: fire 0.5s ease-in-out infinite;
 }
 
-.prose-mindly strong {
+/* Streak styles */
+.streak-fire {
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+
+.streak-day {
+    transition: all 0.2s ease;
+}
+
+.streak-day.active {
+    background: linear-gradient(135deg, var(--rh-orange), var(--rh-yellow));
+}
+
+.streak-day.inactive {
+    background: var(--rh-border);
+}
+
+/* Markdown styles */
+.prose-rh {
+    color: var(--rh-text);
+}
+
+.prose-rh strong {
     color: white;
     font-weight: 600;
 }
 
-.prose-mindly p {
+.prose-rh p {
     margin-bottom: 0.75rem;
     line-height: 1.7;
 }
 
-.prose-mindly p:last-child {
+.prose-rh p:last-child {
     margin-bottom: 0;
 }
 
-.prose-mindly ul, .prose-mindly ol {
+.prose-rh ul, .prose-rh ol {
     margin: 0.5rem 0;
     padding-left: 1.5rem;
 }
 
-.prose-mindly li {
+.prose-rh li {
     margin-bottom: 0.25rem;
 }
 
-.prose-mindly code {
-    background: var(--mindly-darker);
+.prose-rh code {
+    background: var(--rh-darker);
     padding: 0.125rem 0.375rem;
     border-radius: 4px;
     font-size: 0.875em;
 }
 
-.prose-mindly pre {
-    background: var(--mindly-darker);
+.prose-rh pre {
+    background: var(--rh-darker);
     padding: 1rem;
     border-radius: 8px;
     overflow-x: auto;
     margin: 0.75rem 0;
 }
 
-.prose-mindly h1, .prose-mindly h2, .prose-mindly h3 {
-    color: white;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-}
-
 /* Subject colors */
-.subject-matematica { --subject-color: #58A6FF; }
-.subject-fisica { --subject-color: #A371F7; }
-.subject-quimica { --subject-color: #7EE787; }
-.subject-biologia { --subject-color: #56D364; }
-.subject-historia { --subject-color: #D29922; }
-.subject-geografia { --subject-color: #F78166; }
-.subject-portugues { --subject-color: #FF7B72; }
-.subject-filosofia { --subject-color: #D2A8FF; }
+.subject-matematica { color: #3b82f6; }
+.subject-fisica { color: #a855f7; }
+.subject-quimica { color: #22c55e; }
+.subject-biologia { color: #10b981; }
+.subject-historia { color: #eab308; }
+.subject-geografia { color: #f97316; }
+.subject-portugues { color: #ef4444; }
+.subject-filosofia { color: #d946ef; }
 
 @layer base {
     :root {
-        --background: 215 28% 7%;
-        --foreground: 213 14% 82%;
-        --card: 215 22% 11%;
-        --card-foreground: 213 14% 82%;
-        --popover: 215 22% 11%;
-        --popover-foreground: 213 14% 82%;
-        --primary: 212 92% 68%;
+        --background: 222 47% 3%;
+        --foreground: 214 32% 91%;
+        --card: 217 33% 10%;
+        --card-foreground: 214 32% 91%;
+        --popover: 217 33% 10%;
+        --popover-foreground: 214 32% 91%;
+        --primary: 217 91% 60%;
         --primary-foreground: 0 0% 0%;
-        --secondary: 215 14% 20%;
-        --secondary-foreground: 213 14% 82%;
-        --muted: 215 14% 20%;
-        --muted-foreground: 213 14% 54%;
-        --accent: 130 61% 64%;
+        --secondary: 217 33% 15%;
+        --secondary-foreground: 214 32% 91%;
+        --muted: 217 33% 15%;
+        --muted-foreground: 215 20% 45%;
+        --accent: 142 71% 45%;
         --accent-foreground: 0 0% 0%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 98%;
-        --border: 215 14% 25%;
-        --input: 215 14% 25%;
-        --ring: 212 92% 68%;
+        --border: 217 33% 15%;
+        --input: 217 33% 15%;
+        --ring: 217 91% 60%;
         --radius: 0.75rem;
     }
 }

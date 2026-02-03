@@ -2,6 +2,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, Sparkles, Check, Eye, Headphones, BookOpen, Hand } from "lucide-react";
 
+const IconMap = {
+  visual: Eye,
+  auditivo: Headphones,
+  leitura_escrita: BookOpen,
+  cinestesico: Hand
+};
+
 const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({
@@ -34,10 +41,10 @@ const Onboarding = ({ onComplete }) => {
       question: "Quando aprende algo novo, o que te ajuda mais?",
       field: "vark_primary",
       options: [
-        { value: "visual", label: "Ver diagramas, mapas ou imagens", icon: <Eye className="w-5 h-5" />, color: "text-[#58A6FF]" },
-        { value: "auditivo", label: "Ouvir explicações ou podcasts", icon: <Headphones className="w-5 h-5" />, color: "text-[#7EE787]" },
-        { value: "leitura_escrita", label: "Ler textos e resumos", icon: <BookOpen className="w-5 h-5" />, color: "text-[#F78166]" },
-        { value: "cinestesico", label: "Fazer atividades práticas", icon: <Hand className="w-5 h-5" />, color: "text-[#A371F7]" }
+        { value: "visual", label: "Ver diagramas, mapas ou imagens", iconKey: "visual", color: "text-[#58A6FF]" },
+        { value: "auditivo", label: "Ouvir explicações ou podcasts", iconKey: "auditivo", color: "text-[#7EE787]" },
+        { value: "leitura_escrita", label: "Ler textos e resumos", iconKey: "leitura_escrita", color: "text-[#F78166]" },
+        { value: "cinestesico", label: "Fazer atividades práticas", iconKey: "cinestesico", color: "text-[#A371F7]" }
       ]
     },
     {
@@ -122,6 +129,12 @@ const Onboarding = ({ onComplete }) => {
     if (step > 0) setStep(prev => prev - 1);
   };
 
+  const renderIcon = (iconKey, colorClass) => {
+    const IconComponent = IconMap[iconKey];
+    if (!IconComponent) return null;
+    return <IconComponent className={`w-5 h-5 ${colorClass || "text-[#8B949E]"}`} />;
+  };
+
   return (
     <div className="min-h-screen bg-[#0D1117] text-white flex flex-col">
       {/* Header with progress */}
@@ -201,11 +214,7 @@ const Onboarding = ({ onComplete }) => {
                           : "bg-[#161B22] border-[#30363D] text-[#C9D1D9] hover:border-[#8B949E]"
                       }`}
                     >
-                      {option.icon && (
-                        <span className={option.color || "text-[#8B949E]"}>
-                          {option.icon}
-                        </span>
-                      )}
+                      {option.iconKey && renderIcon(option.iconKey, option.color)}
                       <span className="flex-1 font-medium">{option.label}</span>
                       {answers[currentStep.field] === option.value && (
                         <Check className="w-5 h-5 text-[#58A6FF]" />

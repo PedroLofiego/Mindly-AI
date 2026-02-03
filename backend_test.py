@@ -184,24 +184,24 @@ class RevisaHubAPITester:
         
         return success
 
-    def test_get_progress(self):
-        """Test getting progress stats"""
+    def test_get_streak(self):
+        """Test getting streak information"""
         if not self.profile_id:
             print("❌ Skipping - No profile ID available")
             return False
             
         success, response = self.run_test(
-            "Get Progress Stats",
+            "Get Streak Info",
             "GET",
-            f"api/progress/{self.profile_id}",
+            f"api/streak/{self.profile_id}",
             200
         )
         
         if success and isinstance(response, dict):
-            print(f"  Total Sessions: {response.get('total_sessions', 0)}")
-            print(f"  Total Messages: {response.get('total_messages', 0)}")
-            print(f"  Subjects Studied: {response.get('subjects_studied', [])}")
-            print(f"  Favorite Subject: {response.get('favorite_subject', 'None')}")
+            print(f"  Current Streak: {response.get('current_streak', 0)}")
+            print(f"  Longest Streak: {response.get('longest_streak', 0)}")
+            print(f"  Total Study Days: {response.get('total_study_days', 0)}")
+            print(f"  Studied Today: {response.get('studied_today', False)}")
         
         return success
 

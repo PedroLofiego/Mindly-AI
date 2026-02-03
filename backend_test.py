@@ -205,9 +205,32 @@ class RevisaHubAPITester:
         
         return success
 
+    def test_get_progress(self):
+        """Test getting progress stats"""
+        if not self.profile_id:
+            print("❌ Skipping - No profile ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Progress Stats",
+            "GET",
+            f"api/progress/{self.profile_id}",
+            200
+        )
+        
+        if success and isinstance(response, dict):
+            print(f"  Total Sessions: {response.get('total_sessions', 0)}")
+            print(f"  Total Messages: {response.get('total_messages', 0)}")
+            print(f"  Subjects Studied: {response.get('subjects_studied', [])}")
+            print(f"  Favorite Subject: {response.get('favorite_subject', 'None')}")
+            streak = response.get('streak', {})
+            print(f"  Current Streak: {streak.get('current_streak', 0)}")
+        
+        return success
+
     def run_all_tests(self):
         """Run all backend API tests"""
-        print("🚀 Starting MINDLY API Tests...")
+        print("🚀 Starting RevisaHub API Tests...")
         print(f"Base URL: {self.base_url}")
         print("=" * 60)
 
@@ -218,6 +241,7 @@ class RevisaHubAPITester:
             self.test_get_profile,
             self.test_chat_message,
             self.test_get_sessions,
+            self.test_get_streak,
             self.test_get_progress
         ]
 
@@ -238,7 +262,7 @@ class RevisaHubAPITester:
             return False
 
 def main():
-    tester = MindlyAPITester()
+    tester = RevisaHubAPITester()
     success = tester.run_all_tests()
     return 0 if success else 1
 

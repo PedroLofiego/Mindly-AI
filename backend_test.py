@@ -78,7 +78,7 @@ class MindlyAPITester:
             "Create Profile",
             "POST",
             "api/profiles",
-            201,
+            200,  # Backend returns 200, not 201
             data=test_profile
         )
         

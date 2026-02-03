@@ -28,7 +28,10 @@ export default function ChatSidebar({
         {/* Logo & Streak */}
         <div className="p-4 border-b border-[#1e293b]">
           <div className="flex items-center justify-between mb-4">
-            <img src="/revisahub-logo.png" alt="RevisaHub" className="h-8 w-auto" />
+            <div className="flex items-center gap-2">
+              <img src="/revisahub-logo.png" alt="RevisaHub" className="h-7 w-auto" />
+              <span className="font-semibold text-white">RevisaHub</span>
+            </div>
             {streak && streak.current_streak > 0 && (
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30">
                 <Flame className="w-4 h-4 text-amber-400 streak-fire" />

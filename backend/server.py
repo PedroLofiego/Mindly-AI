@@ -418,7 +418,19 @@ async def chat(request: ChatRequest):
         image_data = request.image_base64
         if ',' in image_data:
             image_data = image_data.split(',')[1]
-        image_content = ImageContent(image_base64=image_data)
+        
+        # Detectar o tipo de imagem
+        content_type = "image/jpeg"
+        if image_data.startswith('/9j/'):
+            content_type = "image/jpeg"
+        elif image_data.startswith('iVBORw'):
+            content_type = "image/png"
+        elif image_data.startswith('R0lGOD'):
+            content_type = "image/gif"
+        elif image_data.startswith('UklGR'):
+            content_type = "image/webp"
+        
+        file_content = FileContent(content_type=content_type, file_content_base64=image_data)
         
         user_message = UserMessage(
             text=f"""[Matéria: {request.subject}]
@@ -430,7 +442,7 @@ INSTRUÇÃO:
 2. COMECE com analogia de "{interesse}" nas PRIMEIRAS 2 LINHAS
 3. Use estrutura: [ANALOGIA] → [EXPLICAÇÃO] → [VOLTA AO CONCEITO]
 4. Seja específico e memorável!""",
-            image_contents=[image_content]
+            file_contents=[file_content]
         )
     else:
         # Build context from history

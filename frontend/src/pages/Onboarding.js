@@ -213,7 +213,10 @@ export default function Onboarding({ onComplete }) {
       <div className="fixed top-0 left-0 right-0 z-50 bg-[#030712]/90 backdrop-blur-lg border-b border-[#1e293b]">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-3">
-            <img src="/revisahub-logo.png" alt="RevisaHub" className="h-8 w-auto" />
+            <div className="flex items-center gap-2">
+              <img src="/revisahub-logo.png" alt="RevisaHub" className="h-7 w-auto" />
+              <span className="font-semibold">RevisaHub</span>
+            </div>
             <span className="text-sm text-slate-500">
               {!isIntro && `${answeredCount} de ${totalQuestions}`}
             </span>

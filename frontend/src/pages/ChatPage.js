@@ -1,26 +1,75 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { 
   Send, Image as ImageIcon, X, Sparkles, User, History, 
-  LogOut, MessageSquare, Plus, BarChart3, ChevronRight,
-  Loader2, Camera, Trash2, Menu
+  LogOut, MessageSquare, Plus, BarChart3, Loader2, Camera, Menu
 } from "lucide-react";
 import { API } from "../App";
 
 const SUBJECTS = [
-  { id: "matematica", label: "Matemática", color: "bg-[#58A6FF]", emoji: "📐" },
-  { id: "fisica", label: "Física", color: "bg-[#A371F7]", emoji: "⚡" },
-  { id: "quimica", label: "Química", color: "bg-[#7EE787]", emoji: "🧪" },
-  { id: "biologia", label: "Biologia", color: "bg-[#56D364]", emoji: "🧬" },
-  { id: "historia", label: "História", color: "bg-[#D29922]", emoji: "📜" },
-  { id: "geografia", label: "Geografia", color: "bg-[#F78166]", emoji: "🌍" },
-  { id: "portugues", label: "Português", color: "bg-[#FF7B72]", emoji: "📝" },
-  { id: "filosofia", label: "Filosofia", color: "bg-[#D2A8FF]", emoji: "💭" },
+  { id: "matematica", label: "Matemática", color: "#58A6FF", emoji: "📐" },
+  { id: "fisica", label: "Física", color: "#A371F7", emoji: "⚡" },
+  { id: "quimica", label: "Química", color: "#7EE787", emoji: "🧪" },
+  { id: "biologia", label: "Biologia", color: "#56D364", emoji: "🧬" },
+  { id: "historia", label: "História", color: "#D29922", emoji: "📜" },
+  { id: "geografia", label: "Geografia", color: "#F78166", emoji: "🌍" },
+  { id: "portugues", label: "Português", color: "#FF7B72", emoji: "📝" },
+  { id: "filosofia", label: "Filosofia", color: "#D2A8FF", emoji: "💭" },
 ];
 
-const ChatPage = ({ profile, onLogout }) => {
+function SubjectButton({ subject, onClick }) {
+  return (
+    <button
+      onClick={() => onClick(subject)}
+      data-testid={`subject-${subject.id}`}
+      className="flex items-center gap-3 p-3 rounded-xl bg-[#0D1117] border border-[#30363D] hover:border-[#58A6FF] transition-all group"
+    >
+      <span className="text-lg">{subject.emoji}</span>
+      <span className="text-sm text-[#C9D1D9] group-hover:text-white font-medium">{subject.label}</span>
+    </button>
+  );
+}
+
+function MessageBubble({ msg }) {
+  const isUser = msg.role === "user";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}
+    >
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+        isUser ? "bg-[#30363D]" : "bg-gradient-to-br from-[#58A6FF] to-[#7EE787]"
+      }`}>
+        {isUser ? <User className="w-5 h-5 text-[#C9D1D9]" /> : <Sparkles className="w-5 h-5 text-black" />}
+      </div>
+      
+      <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl ${
+        isUser
+          ? "bg-[#58A6FF]/20 border border-[#58A6FF]/30 rounded-tr-none"
+          : "bg-[#161B22] border border-[#30363D] rounded-tl-none"
+      }`}>
+        {msg.has_image && (
+          <div className="mb-2 flex items-center gap-2 text-xs text-[#8B949E]">
+            <Camera className="w-4 h-4" />
+            Imagem enviada
+          </div>
+        )}
+        {isUser ? (
+          <p className="text-[15px] text-white whitespace-pre-wrap">{msg.content}</p>
+        ) : (
+          <div className="prose-mindly text-[15px]">
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function ChatPage({ profile, onLogout }) {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,34 +87,9 @@ const ChatPage = ({ profile, onLogout }) => {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Generate new session ID
   const generateSessionId = () => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-  // Load sessions and stats
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [sessionsRes, statsRes] = await Promise.all([
-          axios.get(`${API}/sessions/${profile.id}`),
-          axios.get(`${API}/progress/${profile.id}`)
-        ]);
-        setSessions(sessionsRes.data);
-        setStats(statsRes.data);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    };
-    loadData();
-  }, [profile.id]);
-
-  // Start new chat
-  useEffect(() => {
-    if (!currentSessionId) {
-      startNewChat();
-    }
-  }, []);
-
-  const startNewChat = () => {
+  const startNewChat = useCallback(() => {
     const newSessionId = generateSessionId();
     setCurrentSessionId(newSessionId);
     setMessages([{
@@ -76,10 +100,29 @@ const ChatPage = ({ profile, onLogout }) => {
     }]);
     setSelectedSubject(null);
     setSidebarOpen(false);
-  };
+  }, [profile.name, profile.cultural_interest]);
 
-  // Load session messages
-  const loadSession = async (sessionId, subject) => {
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const sessionsRes = await axios.get(`${API}/sessions/${profile.id}`);
+        const statsRes = await axios.get(`${API}/progress/${profile.id}`);
+        setSessions(sessionsRes.data);
+        setStats(statsRes.data);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    }
+    loadData();
+  }, [profile.id]);
+
+  useEffect(() => {
+    if (!currentSessionId) {
+      startNewChat();
+    }
+  }, [currentSessionId, startNewChat]);
+
+  async function loadSession(sessionId, subject) {
     try {
       const response = await axios.get(`${API}/sessions/${profile.id}/${sessionId}/messages`);
       setMessages(response.data.map(msg => ({
@@ -92,18 +135,17 @@ const ChatPage = ({ profile, onLogout }) => {
     } catch (error) {
       console.error("Error loading session:", error);
     }
-  };
+  }
 
-  const scrollToBottom = () => {
+  function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Handle image upload
-  const handleImageUpload = (e) => {
+  function handleImageUpload(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -119,17 +161,15 @@ const ChatPage = ({ profile, onLogout }) => {
       setImageBase64(base64);
     };
     reader.readAsDataURL(file);
-  };
+  }
 
-  const removeImage = () => {
+  function removeImage() {
     setImagePreview(null);
     setImageBase64(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
-  const initiateSend = () => {
+  function initiateSend() {
     if (!inputValue.trim() && !imageBase64) return;
     
     if (!selectedSubject) {
@@ -138,9 +178,9 @@ const ChatPage = ({ profile, onLogout }) => {
     } else {
       sendMessage(inputValue, imageBase64, selectedSubject);
     }
-  };
+  }
 
-  const handleSubjectSelect = (subject) => {
+  function handleSubjectSelect(subject) {
     setSelectedSubject(subject);
     setShowSubjectSelector(false);
     
@@ -148,9 +188,9 @@ const ChatPage = ({ profile, onLogout }) => {
       sendMessage(pendingMessage.text, pendingMessage.image, subject);
       setPendingMessage(null);
     }
-  };
+  }
 
-  const sendMessage = async (text, image, subject) => {
+  async function sendMessage(text, image, subject) {
     if (!text.trim() && !image) return;
 
     const userMessage = {
@@ -184,7 +224,6 @@ const ChatPage = ({ profile, onLogout }) => {
 
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Refresh sessions list
       const sessionsRes = await axios.get(`${API}/sessions/${profile.id}`);
       setSessions(sessionsRes.data);
     } catch (error) {
@@ -198,30 +237,24 @@ const ChatPage = ({ profile, onLogout }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  const handleKeyDown = (e) => {
+  function handleKeyDown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       initiateSend();
     }
-  };
+  }
 
   return (
     <div className="flex h-screen bg-[#0D1117] overflow-hidden">
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <div className={`fixed md:relative z-50 md:z-auto w-72 h-full flex flex-col bg-[#010409] border-r border-[#30363D] transition-transform duration-300 ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}>
-        {/* New Chat Button */}
         <div className="p-4 border-b border-[#30363D]">
           <button
             onClick={startNewChat}
@@ -233,7 +266,6 @@ const ChatPage = ({ profile, onLogout }) => {
           </button>
         </div>
 
-        {/* History */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4">
             <div className="flex items-center gap-2 text-[#8B949E] text-sm font-medium mb-3">
@@ -241,34 +273,32 @@ const ChatPage = ({ profile, onLogout }) => {
               Histórico
             </div>
             {sessions.length === 0 ? (
-              <p className="text-sm text-[#8B949E] text-center py-4">
-                Nenhuma conversa ainda
-              </p>
+              <p className="text-sm text-[#8B949E] text-center py-4">Nenhuma conversa ainda</p>
             ) : (
               <div className="space-y-1">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => loadSession(session.id, SUBJECTS.find(s => s.label === session.subject))}
-                    data-testid={`session-${session.id}`}
-                    className={`w-full text-left p-3 rounded-lg transition-colors group ${
-                      currentSessionId === session.id
-                        ? "bg-[#161B22] border border-[#30363D]"
-                        : "hover:bg-[#161B22]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-[#58A6FF]">{session.subject}</span>
-                    </div>
-                    <p className="text-sm text-[#C9D1D9] truncate">{session.title}</p>
-                  </button>
-                ))}
+                {sessions.map((session) => {
+                  const subj = SUBJECTS.find(s => s.label === session.subject);
+                  return (
+                    <button
+                      key={session.id}
+                      onClick={() => loadSession(session.id, subj)}
+                      data-testid={`session-${session.id}`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors group ${
+                        currentSessionId === session.id ? "bg-[#161B22] border border-[#30363D]" : "hover:bg-[#161B22]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-[#58A6FF]">{session.subject}</span>
+                      </div>
+                      <p className="text-sm text-[#C9D1D9] truncate">{session.title}</p>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
 
-        {/* Stats Button */}
         <div className="p-4 border-t border-[#30363D]">
           <button
             onClick={() => setShowStats(true)}
@@ -280,7 +310,6 @@ const ChatPage = ({ profile, onLogout }) => {
           </button>
         </div>
 
-        {/* Profile */}
         <div className="p-4 border-t border-[#30363D]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#58A6FF] to-[#7EE787] flex items-center justify-center font-bold text-black text-sm">
@@ -302,15 +331,10 @@ const ChatPage = ({ profile, onLogout }) => {
         </div>
       </div>
 
-      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <header className="h-16 flex items-center justify-between px-4 md:px-6 border-b border-[#30363D] bg-[#0D1117]/80 backdrop-blur-lg">
           <div className="flex items-center gap-3">
-            <button 
-              className="md:hidden p-2 text-[#8B949E] hover:text-white"
-              onClick={() => setSidebarOpen(true)}
-            >
+            <button className="md:hidden p-2 text-[#8B949E] hover:text-white" onClick={() => setSidebarOpen(true)}>
               <Menu className="w-6 h-6" />
             </button>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#58A6FF] to-[#7EE787] flex items-center justify-center">
@@ -324,61 +348,19 @@ const ChatPage = ({ profile, onLogout }) => {
           
           {selectedSubject && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#161B22] border border-[#30363D]">
-              <span className={`w-2 h-2 rounded-full ${selectedSubject.color}`} />
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedSubject.color }} />
               <span className="text-sm text-[#C9D1D9]">{selectedSubject.label}</span>
             </div>
           )}
         </header>
 
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-          {messages.map((msg, index) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index === messages.length - 1 ? 0.1 : 0 }}
-              className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
-            >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                msg.role === "assistant" 
-                  ? "bg-gradient-to-br from-[#58A6FF] to-[#7EE787]" 
-                  : "bg-[#30363D]"
-              }`}>
-                {msg.role === "assistant" 
-                  ? <Sparkles className="w-5 h-5 text-black" />
-                  : <User className="w-5 h-5 text-[#C9D1D9]" />
-                }
-              </div>
-              
-              <div className={`max-w-[85%] md:max-w-[75%] p-4 rounded-2xl ${
-                msg.role === "assistant"
-                  ? "bg-[#161B22] border border-[#30363D] rounded-tl-none"
-                  : "bg-[#58A6FF]/20 border border-[#58A6FF]/30 rounded-tr-none"
-              }`}>
-                {msg.has_image && (
-                  <div className="mb-2 flex items-center gap-2 text-xs text-[#8B949E]">
-                    <Camera className="w-4 h-4" />
-                    Imagem enviada
-                  </div>
-                )}
-                {msg.role === "assistant" ? (
-                  <div className="prose-mindly text-[15px]">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <p className="text-[15px] text-white whitespace-pre-wrap">{msg.content}</p>
-                )}
-              </div>
-            </motion.div>
+          {messages.map((msg) => (
+            <MessageBubble key={msg.id} msg={msg} />
           ))}
 
           {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center gap-3"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#58A6FF] to-[#7EE787] flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-black" />
               </div>
@@ -394,7 +376,6 @@ const ChatPage = ({ profile, onLogout }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Subject Selector */}
         <AnimatePresence>
           {showSubjectSelector && (
             <motion.div
@@ -408,42 +389,23 @@ const ChatPage = ({ profile, onLogout }) => {
                   <MessageSquare className="w-5 h-5 text-[#58A6FF]" />
                   Qual é a matéria?
                 </h3>
-                <button 
-                  onClick={() => setShowSubjectSelector(false)}
-                  className="text-[#8B949E] hover:text-white"
-                >
+                <button onClick={() => setShowSubjectSelector(false)} className="text-[#8B949E] hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {SUBJECTS.map((subject) => (
-                  <button
-                    key={subject.id}
-                    onClick={() => handleSubjectSelect(subject)}
-                    data-testid={`subject-${subject.id}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-[#0D1117] border border-[#30363D] hover:border-[#58A6FF] transition-all group"
-                  >
-                    <span className="text-lg">{subject.emoji}</span>
-                    <span className="text-sm text-[#C9D1D9] group-hover:text-white font-medium">
-                      {subject.label}
-                    </span>
-                  </button>
+                  <SubjectButton key={subject.id} subject={subject} onClick={handleSubjectSelect} />
                 ))}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Input Area */}
         <div className="p-4 border-t border-[#30363D] bg-[#0D1117]">
-          {/* Image Preview */}
           {imagePreview && (
             <div className="mb-3 relative inline-block">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="h-20 rounded-lg border border-[#30363D]"
-              />
+              <img src={imagePreview} alt="Preview" className="h-20 rounded-lg border border-[#30363D]" />
               <button
                 onClick={removeImage}
                 className="absolute -top-2 -right-2 w-6 h-6 bg-[#F78166] rounded-full flex items-center justify-center"
@@ -454,13 +416,7 @@ const ChatPage = ({ profile, onLogout }) => {
           )}
 
           <div className="flex items-end gap-2 bg-[#161B22] border border-[#30363D] rounded-2xl p-2 focus-within:border-[#58A6FF] transition-colors">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              accept="image/*"
-              className="hidden"
-            />
+            <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
             
             <button 
               onClick={() => fileInputRef.current?.click()}
@@ -497,7 +453,6 @@ const ChatPage = ({ profile, onLogout }) => {
         </div>
       </div>
 
-      {/* Stats Modal */}
       <AnimatePresence>
         {showStats && stats && (
           <motion.div
@@ -519,10 +474,7 @@ const ChatPage = ({ profile, onLogout }) => {
                   <BarChart3 className="w-6 h-6 text-[#A371F7]" />
                   Meu Progresso
                 </h2>
-                <button 
-                  onClick={() => setShowStats(false)}
-                  className="text-[#8B949E] hover:text-white"
-                >
+                <button onClick={() => setShowStats(false)} className="text-[#8B949E] hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -545,15 +497,12 @@ const ChatPage = ({ profile, onLogout }) => {
                 </div>
               )}
 
-              {stats.subjects_studied.length > 0 && (
+              {stats.subjects_studied && stats.subjects_studied.length > 0 && (
                 <div>
                   <p className="text-sm text-[#8B949E] mb-2">Matérias Estudadas</p>
                   <div className="flex flex-wrap gap-2">
                     {stats.subjects_studied.map((subject) => (
-                      <span 
-                        key={subject}
-                        className="px-3 py-1 bg-[#0D1117] border border-[#30363D] rounded-full text-sm text-[#C9D1D9]"
-                      >
+                      <span key={subject} className="px-3 py-1 bg-[#0D1117] border border-[#30363D] rounded-full text-sm text-[#C9D1D9]">
                         {subject}
                       </span>
                     ))}
@@ -566,6 +515,4 @@ const ChatPage = ({ profile, onLogout }) => {
       </AnimatePresence>
     </div>
   );
-};
-
-export default ChatPage;
+}

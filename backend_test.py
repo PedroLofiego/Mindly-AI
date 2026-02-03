@@ -63,22 +63,31 @@ class RevisaHubAPITester:
         return success
 
     def test_create_profile(self):
-        """Test profile creation"""
+        """Test profile creation with RevisaHub onboarding structure"""
         test_profile = {
             "name": "Test User",
-            "vark_primary": "visual",
-            "explanation_style": "analogias_historias",
-            "approach": "pratica",
-            "social_pref": "sozinho",
-            "motivation": "desafios_metas",
-            "cultural_interest": "Naruto e animes"
+            # Block A - Como você aprende melhor
+            "canal_sensorial": "visual",
+            "formato_explicacao": "analogias_historias", 
+            "abordagem": "pratica",
+            # Block B - Seu jeito de estudar
+            "interacao_social": "sozinho",
+            "estrutura_estudo": "equilibrado",
+            "duracao_sessao": "30_60",
+            "ambiente_estudo": "silencio",
+            # Block C - Motivação
+            "motivador_principal": "desafios_metas",
+            "estrategia_dificuldade": "busca_exemplos",
+            "planejamento_estudos": "as_vezes",
+            # Block E - Personalização
+            "interesse_cultural": "Naruto e animes"
         }
         
         success, response = self.run_test(
             "Create Profile",
-            "POST",
+            "POST", 
             "api/profiles",
-            200,  # Backend returns 200, not 201
+            200,
             data=test_profile
         )
         
@@ -86,7 +95,7 @@ class RevisaHubAPITester:
             self.profile_id = response.get('id')
             print(f"  Created Profile ID: {self.profile_id}")
             # Verify profile has expected fields
-            expected_fields = ['id', 'name', 'vark_primary', 'cultural_interest']
+            expected_fields = ['id', 'name', 'canal_sensorial', 'interesse_cultural']
             for field in expected_fields:
                 if field not in response:
                     print(f"  ⚠️ Missing field: {field}")

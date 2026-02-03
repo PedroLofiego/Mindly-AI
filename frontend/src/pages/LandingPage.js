@@ -264,8 +264,8 @@ export default function LandingPage({ onStart }) {
       <footer className="py-8 px-6 border-t border-[#1e293b]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src="/revisahub-logo.png" alt="RevisaHub" className="h-6 w-auto opacity-70" />
-            <span className="text-slate-500">© 2025</span>
+            <img src="/revisahub-logo.png" alt="RevisaHub" className="h-6 w-auto" />
+            <span className="text-slate-500 text-sm">© 2025</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-500">
             <span>Feito para estudantes brasileiros</span>

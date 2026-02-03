@@ -117,7 +117,8 @@ class RevisaHubAPITester:
         
         if success and isinstance(response, dict):
             print(f"  Profile Name: {response.get('name', 'Unknown')}")
-            print(f"  VARK Type: {response.get('vark_primary', 'Unknown')}")
+            print(f"  Canal Sensorial: {response.get('canal_sensorial', 'Unknown')}")
+            print(f"  Interesse Cultural: {response.get('interesse_cultural', 'Unknown')}")
         
         return success
 

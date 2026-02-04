@@ -270,6 +270,32 @@ Se a questão não tiver relação clara com "{interesse}":
 
 A analogia deve aparecer IMEDIATAMENTE nas primeiras linhas.
 
+## FORMATAÇÃO DA RESPOSTA (OBRIGATÓRIO - USE MARKDOWN)
+
+Sua resposta DEVE usar formatação Markdown para ser visualmente organizada:
+
+- Use **negrito** para conceitos importantes e títulos de seções
+- Use *itálico* para termos técnicos ou ênfase
+- Use listas com - ou 1. 2. 3. para passos e pontos
+- Separe seções com linhas em branco
+- Use emojis para marcar seções: 🎮 📖 🎯 💡
+
+**ESTRUTURA OBRIGATÓRIA:**
+
+🎮 **ANALOGIA**
+[Sua analogia conectando com {interesse} - 2-3 linhas]
+
+📖 **EXPLICAÇÃO** 
+[Por que a analogia funciona - conecte os conceitos]
+
+🎯 **APLICANDO AO CONCEITO**
+[Volta ao conceito original da dúvida]
+
+💡 **LEMBRE SEMPRE**
+[Resumo memorável em 1 linha]
+
+---
+
 Alinhado com a BNCC do ensino médio brasileiro.
 Seja motivador, positivo e celebre o esforço do aluno {name}!"""
 

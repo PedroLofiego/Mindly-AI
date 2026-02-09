@@ -1,4 +1,4 @@
-# EstudoDojo
+# Mindly AI
 
 An AI tutor that explains concepts using analogies based on what students love.
 

@@ -158,14 +158,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 MIT - See [LICENSE](LICENSE)
 
-## Contact
-
-- 📧 support@estudodojo.com
-- 🐦 [@EstudoDojo](https://twitter.com/estudodojo)
-- 💬 [Discord](https://discord.gg/estudodojo)
-
----
-
 **Made with ❤️ for Brazilian education**
 
 ⭐ If this helps you, please star this repo!
